@@ -3,7 +3,7 @@ import { lessons } from './data/lessons';
 import { useProgressStore } from './stores/progressStore';
 import { CodeEditor } from './components/CodeEditor';
 import { LivePreview } from './components/LivePreview';
-import { ChevronRight, ChevronLeft, Check, RotateCcw, BookOpen } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, RotateCcw, BookOpen, Github } from 'lucide-react';
 import { type RunResult } from './utils/codeRunner';
 
 function App() {
@@ -103,9 +103,18 @@ function App() {
             </div>
             <span>{progress}%</span>
           </div>
-          <button onClick={resetProgress} className="p-1 rounded hover:bg-white/5" title="Reset">
+          <button onClick={resetProgress} className="p-1 rounded hover:bg-white/5" title="Reset Progress">
             <RotateCcw size={10} style={{ color: 'var(--text-muted)' }} />
           </button>
+          <a 
+            href="https://github.com/scetiner/zustand-playground" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-1 rounded hover:bg-white/5"
+            title="View on GitHub"
+          >
+            <Github size={12} style={{ color: 'var(--text-muted)' }} />
+          </a>
         </div>
       </header>
 

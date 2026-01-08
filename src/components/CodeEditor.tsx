@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, RotateCcw, Copy, Check, Eye, EyeOff } from 'lucide-react';
+import { Play, RotateCcw, Copy, Check, Eye, EyeOff, X } from 'lucide-react';
 import { lessons } from '../data/lessons';
 import { runCode, type RunResult } from '../utils/codeRunner';
 
@@ -19,13 +19,22 @@ export function CodeEditor({ lesson, onReset, onRunResult }: CodeEditorProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
+  const savedCodeRef = useRef(code); // Preserve user code when showing solution
 
   // Reset code when lesson changes
   useEffect(() => {
     setCode(starterCode);
+    savedCodeRef.current = starterCode;
     setOutput([]);
     setShowSolution(false);
   }, [lesson.id, starterCode]);
+  
+  // Keep savedCodeRef in sync when user types (only when solution is hidden)
+  useEffect(() => {
+    if (!showSolution) {
+      savedCodeRef.current = code;
+    }
+  }, [code, showSolution]);
 
   const executeCode = useCallback(async () => {
     setIsRunning(true);
@@ -88,13 +97,17 @@ export function CodeEditor({ lesson, onReset, onRunResult }: CodeEditorProps) {
   };
 
   const toggleSolution = () => {
-    if (showSolution) {
-      setCode(starterCode);
-    } else {
-      setCode(solutionCode);
-    }
     setShowSolution(!showSolution);
-    setOutput([]);
+  };
+  
+  const closeSolution = () => {
+    setShowSolution(false);
+  };
+  
+  const copySolutionToEditor = () => {
+    setCode(solutionCode);
+    savedCodeRef.current = solutionCode;
+    setShowSolution(false);
   };
 
   return (
@@ -139,34 +152,94 @@ export function CodeEditor({ lesson, onReset, onRunResult }: CodeEditorProps) {
         </div>
       </div>
 
-      {/* Monaco Editor */}
-      <div className="flex-1 min-h-0">
-        <Editor
-          height="100%"
-          defaultLanguage="typescript"
-          value={code}
-          onChange={(value) => setCode(value || '')}
-          theme="vs-dark"
-          options={{
-            minimap: { enabled: false },
-            fontSize: 12,
-            fontFamily: "'SF Mono', 'Fira Code', monospace",
-            lineNumbers: 'on',
-            scrollBeyondLastLine: false,
-            wordWrap: 'on',
-            tabSize: 2,
-            automaticLayout: true,
-            padding: { top: 12, bottom: 12 },
-            lineHeight: 18,
-            renderLineHighlight: 'line',
-            cursorBlinking: 'smooth',
-            contextmenu: false,
-            folding: true,
-            glyphMargin: false,
-            lineDecorationsWidth: 4,
-            lineNumbersMinChars: 3,
-          }}
-        />
+      {/* Editors Container */}
+      <div className="flex-1 min-h-0 flex">
+        {/* Main Editor - User's Code */}
+        <div className={`flex flex-col min-h-0 ${showSolution ? 'w-1/2 border-r' : 'w-full'}`} style={{ borderColor: 'var(--border)' }}>
+          <Editor
+            height="100%"
+            defaultLanguage="typescript"
+            value={code}
+            onChange={(value) => setCode(value || '')}
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 12,
+              fontFamily: "'SF Mono', 'Fira Code', monospace",
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              wordWrap: 'on',
+              tabSize: 2,
+              automaticLayout: true,
+              padding: { top: 12, bottom: 12 },
+              lineHeight: 18,
+              renderLineHighlight: 'line',
+              cursorBlinking: 'smooth',
+              contextmenu: false,
+              folding: true,
+              glyphMargin: false,
+              lineDecorationsWidth: 4,
+              lineNumbersMinChars: 3,
+            }}
+          />
+        </div>
+        
+        {/* Solution Panel - Read-only */}
+        {showSolution && (
+          <div className="w-1/2 flex flex-col min-h-0">
+            {/* Solution Header */}
+            <div 
+              className="flex items-center justify-between px-3 py-1 border-b"
+              style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border)' }}
+            >
+              <span className="text-xs" style={{ color: 'var(--accent)' }}>📖 Solution (read-only)</span>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={copySolutionToEditor}
+                  className="px-2 py-0.5 rounded text-xs transition-colors hover:bg-white/10"
+                  style={{ color: 'var(--text-secondary)' }}
+                  title="Copy solution to your editor"
+                >
+                  Use This
+                </button>
+                <button 
+                  onClick={closeSolution}
+                  className="p-0.5 rounded transition-colors hover:bg-white/10"
+                  title="Close solution"
+                >
+                  <X size={12} style={{ color: 'var(--text-muted)' }} />
+                </button>
+              </div>
+            </div>
+            <Editor
+              height="100%"
+              defaultLanguage="typescript"
+              value={solutionCode}
+              theme="vs-dark"
+              options={{
+                readOnly: true,
+                minimap: { enabled: false },
+                fontSize: 12,
+                fontFamily: "'SF Mono', 'Fira Code', monospace",
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                wordWrap: 'on',
+                tabSize: 2,
+                automaticLayout: true,
+                padding: { top: 12, bottom: 12 },
+                lineHeight: 18,
+                renderLineHighlight: 'none',
+                cursorBlinking: 'solid',
+                contextmenu: false,
+                folding: true,
+                glyphMargin: false,
+                lineDecorationsWidth: 4,
+                lineNumbersMinChars: 3,
+                domReadOnly: true,
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Output Panel */}

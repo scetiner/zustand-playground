@@ -2,7 +2,7 @@
 
 An interactive tutorial for mastering [Zustand](https://github.com/pmndrs/zustand) state management in React applications, with a special focus on **Micro Frontend (MFE) architectures**.
 
-![Zustand Playground](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Vite](https://img.shields.io/badge/Vite-5-purple) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-cyan)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit-orange)](https://zustand-playground-scetiner.vercel.app/) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Vite](https://img.shields.io/badge/Vite-5-purple) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-cyan)
 
 ## ✨ Features
 
