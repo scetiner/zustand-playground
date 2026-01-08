@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bearGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0db4f"/>
+      <stop offset="100%" style="stop-color:#c9b73e"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="45" fill="#1a1a21" stroke="#2e2e3a" stroke-width="2"/>
+  <circle cx="30" cy="25" r="12" fill="url(#bearGradient)"/>
+  <circle cx="70" cy="25" r="12" fill="url(#bearGradient)"/>
+  <ellipse cx="50" cy="55" rx="28" ry="25" fill="url(#bearGradient)"/>
+  <ellipse cx="50" cy="60" rx="12" ry="10" fill="#1a1a21"/>
+  <circle cx="50" cy="55" r="5" fill="#1a1a21"/>
+  <ellipse cx="38" cy="48" rx="4" ry="5" fill="#1a1a21"/>
+  <ellipse cx="62" cy="48" rx="4" ry="5" fill="#1a1a21"/>
+  <ellipse cx="39" cy="47" rx="1.5" ry="2" fill="#fff"/>
+  <ellipse cx="63" cy="47" rx="1.5" ry="2" fill="#fff"/>
+</svg>
+
