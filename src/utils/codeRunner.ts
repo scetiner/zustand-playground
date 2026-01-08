@@ -1,13 +1,17 @@
+// @ts-expect-error - Babel standalone doesn't have types
 import * as Babel from '@babel/standalone';
 import React from 'react';
-import { create } from 'zustand';
+import { create, type StoreApi, type UseBoundStore } from 'zustand';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyStore = UseBoundStore<StoreApi<any>>;
+
 export interface RunResult {
   success: boolean;
-  store?: ReturnType<typeof create>;
-  stores?: Record<string, ReturnType<typeof create>>; // For lessons with multiple stores
+  store?: AnyStore;
+  stores?: Record<string, AnyStore>; // For lessons with multiple stores
   storeState?: Record<string, unknown>;
   Component?: React.ComponentType;
   error?: string;
@@ -102,7 +106,7 @@ export function runCode(code: string): RunResult {
       setTimeout,
       Promise,
       // Provide a way to expose the store
-      __exposedStore__: null as ReturnType<typeof create> | null,
+      __exposedStore__: null as AnyStore | null,
     };
 
     // Wrap the code to capture the store AND component
@@ -199,8 +203,8 @@ export function runCode(code: string): RunResult {
     if (stores && Object.keys(stores).length > 0) {
       const combinedState: Record<string, unknown> = {};
       for (const [key, s] of Object.entries(stores)) {
-        if (s && typeof (s as ReturnType<typeof create>).getState === 'function') {
-          combinedState[key] = (s as ReturnType<typeof create>).getState();
+        if (s && typeof (s as AnyStore).getState === 'function') {
+          combinedState[key] = (s as AnyStore).getState();
         }
       }
       logCapture.log('Multiple stores created:', JSON.stringify(combinedState, null, 2));
@@ -208,7 +212,7 @@ export function runCode(code: string): RunResult {
       return {
         success: true,
         store,
-        stores: stores as Record<string, ReturnType<typeof create>>,
+        stores: stores as Record<string, AnyStore>,
         storeState: combinedState,
         Component,
         logs: logCapture.logs,
@@ -256,7 +260,7 @@ export function runCode(code: string): RunResult {
 }
 
 // Extract store configuration from code for specific lesson types
-export function extractStoreConfig(code: string, lessonId: number): Record<string, unknown> | null {
+export function extractStoreConfig(code: string, _lessonId: number): Record<string, unknown> | null {
   try {
     const result = runCode(code);
     if (result.success && result.storeState) {

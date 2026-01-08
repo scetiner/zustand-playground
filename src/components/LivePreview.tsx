@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Minus, Trash2, ShoppingCart, User, Bell, Settings, Sun, Moon, RefreshCw, AlertTriangle, Database } from 'lucide-react';
-import type { RunResult } from '../utils/codeRunner';
-import { create } from 'zustand';
+import { Plus, Minus, Trash2, ShoppingCart, User, Sun, Moon, AlertTriangle, Database } from 'lucide-react';
+import type { RunResult, AnyStore } from '../utils/codeRunner';
 
 interface LivePreviewProps {
   lessonId: number;
@@ -172,10 +171,10 @@ function ExecutedPreview({ result, lessonId }: { result: RunResult; lessonId: nu
     // Create a component based on lesson type
     return function DynamicComponent() {
       const state = store((s: unknown) => s) as Record<string, unknown>;
-      const storeApi = store as unknown as { getState: () => Record<string, unknown> };
+      const storeApi = store as AnyStore;
       
       // Get actions from store (functions)
-      const actions = Object.entries(storeApi.getState()).filter(
+      const actions = Object.entries(storeApi.getState() as Record<string, unknown>).filter(
         ([, value]) => typeof value === 'function'
       );
       
@@ -812,7 +811,6 @@ function ExecutedPreview({ result, lessonId }: { result: RunResult; lessonId: nu
       if (lessonId === 16) {
         const events = (state.events ?? []) as { type: string; payload: unknown }[];
         const publishAction = actions.find(([name]) => name === 'publish');
-        const subscribeAction = actions.find(([name]) => name === 'subscribe');
         
         return (
           <div className="space-y-3">
@@ -1971,7 +1969,7 @@ function BestPracticesPreview() {
 }
 
 // Lesson 7 Executed Preview - reactive localStorage display with real persist middleware
-function Lesson7ExecutedPreview({ state, actions, store }: { state: Record<string, unknown>; actions: [string, unknown][]; store?: ReturnType<typeof import('zustand').create> }) {
+function Lesson7ExecutedPreview({ state, actions, store }: { state: Record<string, unknown>; actions: [string, unknown][]; store?: AnyStore }) {
   const [storageValue, setStorageValue] = useState('{}');
   const [liveState, setLiveState] = useState(state);
   
@@ -2037,23 +2035,6 @@ function Lesson7ExecutedPreview({ state, actions, store }: { state: Record<strin
   const fontSize = (liveState.fontSize ?? 14) as number;
   const setThemeAction = actions.find(([name]) => name === 'setTheme');
   const setFontSizeAction = actions.find(([name]) => name === 'setFontSize');
-  
-  // Helper to save to localStorage in Zustand persist format
-  const saveToStorage = (stateValues: { theme: unknown; fontSize: unknown }) => {
-    try {
-      // Save in Zustand persist format
-      const storageData = {
-        state: stateValues,
-        version: 0
-      };
-      const jsonData = JSON.stringify(storageData);
-      localStorage.setItem('settings-store', jsonData);
-      console.log('Saved to localStorage:', jsonData); // Debug log
-      setTimeout(() => setStorageValue(parseStorage()), 10);
-    } catch (e) {
-      console.error('Failed to save to localStorage:', e);
-    }
-  };
   
   const handleSetTheme = (t: string) => {
     // Call the store action - this updates the Zustand state
